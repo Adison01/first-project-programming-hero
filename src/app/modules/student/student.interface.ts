@@ -25,10 +25,11 @@ export type TLocalGuardian = {
 
 export type TStudent = {
   id: string;
+  user: Types.ObjectId;
   password: string;
   name: TUserName;
   gender: 'male' | 'female' | 'other';
-  dateOfBirth: string;
+  dateOfBirth: Date;
   email: string;
   contactNo: string;
   emergencyContactNo: string;
@@ -39,6 +40,7 @@ export type TStudent = {
   localGuardian: TLocalGuardian;
   profileImg?: string;
   // isActive: 'active' | 'blocked';
+  admissionSemester: Types.ObjectId;
   isDeleted: boolean;
 };
 //for creating static

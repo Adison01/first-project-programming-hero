@@ -1,9 +1,15 @@
 import { z } from 'zod';
 
 export const userNameValidationSchema = z.object({
-  firstName: z.string().min(1).max(20),
-  middleName: z.string().optional(),
-  lastName: z.string().min(1),
+  firstName: z
+    .string()
+    .min(1)
+    .max(20)
+    .refine((value) => /^[A-Z]/.test(value), {
+      message: 'First Name must be start with capital letter',
+    }),
+  middleName: z.string(),
+  lastName: z.string(),
 });
 
 export const guardianValidationSchema = z.object({
@@ -22,25 +28,29 @@ export const localGuardianValidationSchema = z.object({
   address: z.string().min(1),
 });
 
-export const studentValidationSchema = z.object({
-  id: z.string(),
-  password: z.string().max(20),
-  name: userNameValidationSchema.required(),
-  gender: z.enum(['male', 'female', 'other']),
-  dateOfBirth: z.string().optional(),
-  email: z.string().email(),
-  contactNo: z.string().min(1),
-  emergencyContactNo: z.string().min(1),
-  bloodGroup: z
-    .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
-    .optional(),
-  presentAddress: z.string().min(1),
-  permanentAddress: z.string().min(1),
-  guardian: guardianValidationSchema.required(),
-  localGuardian: localGuardianValidationSchema.required(),
-  profileImage: z.string().optional(),
-  isActive: z.enum(['active', 'blocked']).default('active'),
-  isDeleted: z.boolean(),
+export const createStudentValidationSchema = z.object({
+  body: z.object({
+    password: z.string().max(20),
+    student: z.object({
+      name: userNameValidationSchema.required(),
+      gender: z.enum(['male', 'female', 'other']),
+      dateOfBirth: z.string().optional(),
+      email: z.string().email(),
+      contactNo: z.string().min(1),
+      emergencyContactNo: z.string().min(1),
+      bloodGroup: z
+        .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+        .optional(),
+      presentAddress: z.string().min(1),
+      permanentAddress: z.string().min(1),
+      guardian: guardianValidationSchema.required(),
+      localGuardian: localGuardianValidationSchema.required(),
+      admissionSemester: z.string(),
+      profileImage: z.string().optional(),
+    }),
+  }),
 });
 
-export default studentValidationSchema;
+export const studentValidations = {
+  createStudentValidationSchema,
+};

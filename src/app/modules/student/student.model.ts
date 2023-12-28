@@ -1,15 +1,11 @@
 import { Schema, model } from 'mongoose';
-import validator from 'validator';
 import {
   TGuardian,
   TLocalGuardian,
   TStudent,
-  StudentMethods,
   StudentModel,
   TUserName,
 } from './student.interface';
-import bcrypt from 'bcrypt';
-import config from '../../config';
 
 export const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -92,11 +88,17 @@ export const localGuardianSchema = new Schema<TLocalGuardian>({
 export const studentSchema = new Schema<TStudent, StudentModel>(
   {
     id: { type: String, required: [true, 'ID is required'], unique: true },
-    password: {
-      type: String,
-      required: [true, 'Password is required'],
-      maxlength: [20, 'Password can not be 20 characters'],
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'User id is required'],
+      unique: true,
+      ref: 'User',
     },
+    // password: {
+    //   type: String,
+    //   required: [true, 'Password is required'],
+    //   maxlength: [20, 'Password can not be 20 characters'],
+    // },
     name: {
       type: userNameSchema,
       required: [true, 'Name is required'],
@@ -109,7 +111,7 @@ export const studentSchema = new Schema<TStudent, StudentModel>(
       },
       required: [true, 'Gender is required'],
     },
-    dateOfBirth: { type: String },
+    dateOfBirth: { type: Date },
     email: {
       type: String,
       required: [true, 'Email is required'],
@@ -141,6 +143,7 @@ export const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, 'Local guardian details are required'],
     },
     profileImg: { type: String },
+    admissionSemester: { type: Schema.Types.ObjectId, ref: 'AcademicSemester' },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -158,24 +161,24 @@ studentSchema.virtual('fullName').get(function () {
   return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
 });
 
-//pre save middleware/hook : will work on create() save()
-studentSchema.pre('save', async function (next) {
-  //console.log(this, 'pre hook : we will save data');
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this; // here 'this' is referencing current documents.
-  //hashing password and save in DB
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_rounds)
-  );
-  next();
-});
+// //pre save middleware/hook : will work on create() save()
+// studentSchema.pre('save', async function (next) {
+//   //console.log(this, 'pre hook : we will save data');
+//   // eslint-disable-next-line @typescript-eslint/no-this-alias
+//   const user = this; // here 'this' is referencing current documents.
+//   //hashing password and save in DB
+//   user.password = await bcrypt.hash(
+//     user.password,
+//     Number(config.bcrypt_salt_rounds)
+//   );
+//   next();
+// });
 
-//post save middleware / hook
-studentSchema.post('save', function (doc, next) {
-  doc.password = '';
-  next();
-});
+// //post save middleware / hook
+// studentSchema.post('save', function (doc, next) {
+//   doc.password = '';
+//   next();
+// });
 
 //query middleware
 studentSchema.pre('find', function (next) {

@@ -1,20 +1,19 @@
 import { UserServices } from './user.service';
+import sendResponse from '../../utils/sendResponse';
+import httpStatus from 'http-status';
+import catchAsync from '../../utils/catchAsync';
 
-const createStudent = async (req: Request, res: Response) => {
-  try {
-    const { password, student: studentData } = req.body;
-    // const zodParsedData = studentValidationSchema.parse(studentData);
+const createStudent = catchAsync(async (req, res) => {
+  const { password, student: studentData } = req.body;
+  const result = await UserServices.createStudentIntoDB(password, studentData);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Student is created successfully',
+    data: result,
+  });
+});
 
-    const result = await UserServices.createStudentIntoDb(
-      password,
-      studentData
-    );
-    res.status(200).json({
-      success: true,
-      message: 'Student is created successfully',
-      data: result,
-    });
-  } catch (err) {
-    console.log(err);
-  }
+export const UserControllers = {
+  createStudent,
 };
