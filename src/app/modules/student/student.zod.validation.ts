@@ -12,6 +12,18 @@ export const userNameValidationSchema = z.object({
   lastName: z.string(),
 });
 
+export const updateUserNameValidationSchema = z.object({
+  firstName: z
+    .string()
+    .min(1)
+    .max(20)
+    .refine((value) => /^[A-Z]/.test(value), {
+      message: 'First Name must be start with capital letter',
+    }),
+  middleName: z.string(),
+  lastName: z.string(),
+});
+
 export const guardianValidationSchema = z.object({
   fatherName: z.string().min(1),
   fatherOccupation: z.string().min(1),
@@ -51,6 +63,29 @@ export const createStudentValidationSchema = z.object({
   }),
 });
 
+export const updateStudentValidationSchema = z.object({
+  body: z.object({
+    student: z.object({
+      name: updateUserNameValidationSchema,
+      gender: z.enum(['male', 'female', 'other']).optional(),
+      dateOfBirth: z.string().optional(),
+      email: z.string().email().optional(),
+      contactNo: z.string().min(1).optional(),
+      emergencyContactNo: z.string().min(1).optional(),
+      bloodGroup: z
+        .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+        .optional(),
+      presentAddress: z.string().min(1).optional(),
+      permanentAddress: z.string().min(1).optional(),
+      guardian: guardianValidationSchema.required().optional(),
+      localGuardian: localGuardianValidationSchema.required().optional(),
+      admissionSemester: z.string().optional(),
+      profileImage: z.string().optional(),
+    }),
+  }),
+});
+
 export const studentValidations = {
   createStudentValidationSchema,
+  updateStudentValidationSchema,
 };
